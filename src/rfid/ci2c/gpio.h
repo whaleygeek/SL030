@@ -6,7 +6,7 @@
 #ifndef GPIO_H
 #define GPIO_H
 
-#include "system.h"
+#include <stdint.h>
 
 extern const uint8_t gpio_sim; /* 0=> not simulated */
 
