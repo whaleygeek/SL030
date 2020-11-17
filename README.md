@@ -3,6 +3,10 @@ A driver package for the SL030 RFID tag reader.
 
 Works on all Pi models, with Python2 and Python3.
 
+![PiZero with SL030](pizeroW_SL030.png "PiZeroW+SL030")
+
+
+
 Note that the 20/08/2020 build of RaspberryPi OS Lite doesn't have RPi.GPIO installed
 for Python3 (does for Python2). You can install it manually though: 
 https://github.com/whaleygeek/SL030/issues/1#issuecomment-728889189
