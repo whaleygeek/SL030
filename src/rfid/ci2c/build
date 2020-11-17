@@ -3,18 +3,18 @@
 echo "**********************************************"
 
 # build gpio_test
-gcc gpio_test.c gpio.c
-mv a.out gpio_test
+echo building gpio_test...
+gcc gpio_test.c gpio_rpi.c -o gpio_test
 chmod u+x gpio_test
 
 # build i2c_test
-gcc i2c_test.c i2c.c gpio.c
-mv a.out i2c_test
+echo building i2c_test...
+gcc i2c_test.c i2c.c gpio_rpi.c -o i2c_test
 chmod u+x i2c_test
 
 # build i2c .so library
-gcc -Wall -shared -o i2c.so -fPIC i2c.c gpio.c
-#nm -D i2c.so
+echo building i2c.so...
+gcc -Wall -shared -o i2c.so -fPIC i2c.c gpio_rpi.c
 
 
 

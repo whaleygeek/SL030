@@ -1,5 +1,5 @@
-/* gpio.c  D.J.Whale  8/07/2014
- * 
+/* gpio.c  D.J.Whale  08/07/2014
+ *
  * A very simple interface to the GPIO port on the Raspberry Pi.
  */
 
@@ -14,12 +14,6 @@
 #include <time.h>
 
 #include "gpio.h"
-
-
-/***** CONFIGURATION *****/
-
-/* uncomment to make this a simulated driver */
-//#define GPIO_SIMULATED
 
 
 /***** CONSTANTS *****/
@@ -57,8 +51,6 @@ static volatile unsigned *gpio;
 
 void gpio_init()
 {
-#ifndef GPIO_SIMULATED
-
    uint32_t peri_base = BCM2708_PERI_BASE; /* default if device tree not found */
    uint32_t gpio_base;
    FILE* fp;
@@ -80,10 +72,14 @@ void gpio_init()
 
 
    /* open /dev/mem */
-   if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0) 
+   /* use gpiomem first to avoid root */
+   if ((mem_fd = open("/dev/gpiomem", O_RDWR|O_SYNC) ) < 0)
    {
-      printf("can't open /dev/mem \n");
-      exit(-1); //TODO return a result code
+      if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0)
+      {
+         printf("can't open /dev/gpiomem or /dev/mem\n");
+         exit(-1); //TODO return a result code
+      }
    }
 
    /* mmap GPIO */
@@ -98,7 +94,7 @@ void gpio_init()
 
    close(mem_fd); //No need to keep mem_fd open after mmap
 
-   if (gpio_map == MAP_FAILED) 
+   if (gpio_map == MAP_FAILED)
    {
       printf("mmap error %d\n", (int)gpio_map);//errno also set!
       exit(-1); //TODO return a result code
@@ -106,55 +102,37 @@ void gpio_init()
 
    // Always use volatile pointer!
    gpio = (volatile unsigned *)gpio_map;
-#endif
 }
 
 
-void gpio_setin(int g)
+void gpio_setin(uint8_t g)
 {
-#ifndef GPIO_SIMULATED
   INP_GPIO(g);
-#else
-  printf("gpio:in:%d\n", g);
-#endif
 }
 
 
-void gpio_setout(int g)
+void gpio_setout(uint8_t g)
 {
-#ifndef GPIO_SIMULATED
   /* always INP_GPIO before OUT_GPIO */
   //INP_GPIO(g); #### this causes glitching
   OUT_GPIO(g);
-#else
-  printf("gpio:out:%d\n", g);
-#endif
 }
 
 
-void gpio_high(int g)
+void gpio_high(uint8_t g)
 {
-#ifndef GPIO_SIMULATED
   GPIO_HIGH(g);
-#else
-  printf("gpio:high:%d\n", g);
-#endif
 }
 
 
-void gpio_low(int g)
+void gpio_low(uint8_t g)
 {
-#ifndef GPIO_SIMULATED
   GPIO_LOW(g);
-#else
-  printf("gpio:low:%d\n", g);
-#endif
 }
 
 
-void gpio_write(int g, int v)
+void gpio_write(uint8_t g, uint8_t v)
 {
-#ifndef GPIO_SIMULATED
   if (v != 0)
   {
     GPIO_HIGH(g);
@@ -163,19 +141,18 @@ void gpio_write(int g, int v)
   {
     GPIO_LOW(g);
   }
-#else
-  printf("gpio:write:%d=%d\n", g, v);
-#endif
 }
 
 
-int  gpio_read(int g)
+uint8_t gpio_read(uint8_t g)
 {
-#ifndef GPIO_SIMULATED
   return GPIO_READ(g);
-#else
-  return 0; /* always low in simulation */
-#endif
+}
+
+
+void gpio_finished(void)
+{
+  //TODO probably need gpio_finished() to unmmap() the memory region and clean up the peripheral?
 }
 
 
