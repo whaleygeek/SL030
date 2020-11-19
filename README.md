@@ -67,6 +67,23 @@ out of the box with no fiddling on any OS no matter how old or how new.
 4. The code works in both Python2 and Python3, but I'll generally only be
 testing against Python3 in the future from now on.
 
+5. Because this driver is zero-install, and avoids any fiddling with
+system settings or installation of other packages, it has an embedded
+I2C driver of it's own. I2C is usually OFF by default when the OS is
+first installed, but if you turned the I2C support on it might stop
+the embedded I2C driver from working as the pins will be in-use by the
+kernel. Turn off I2C driver support in raspi-config.
+
+6. Because this uses an embedded I2C driver, you can re-map the pins
+to pretty much any GPIO pins on the Pi GPIO header - change the mapping
+in file i2c.c 
+[here](https://github.com/whaleygeek/SL030/blob/master/src/rfid/ci2c/i2c.c#L54)
+and the CARD_PRESENT is changeable in file __init__.py
+[here](https://github.com/whaleygeek/SL030/blob/master/src/rfid/__init__.py#L19)
+
+7. There are various config options in __init__.py, if you know what you are
+doing you might find them useful.
+
 Last tested 17/11/2020
 
 @whaleygeek
